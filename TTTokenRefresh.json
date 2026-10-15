@@ -1,0 +1,405 @@
+{
+  "name": "TTTokenRefresh",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            },
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        32
+      ],
+      "id": "49d3202a-13cd-47a1-9817-d490d7a15abd",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "path": "5d814be0-859d-47f4-9307-cc8f95fabd7f",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        -288
+      ],
+      "id": "57efa642-2c3f-4836-af36-0696af54d6d5",
+      "name": "Webhook",
+      "webhookId": "5d814be0-859d-47f4-9307-cc8f95fabd7f",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/oauth/token/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_key",
+              "value": "sbawneuyxs5aelzwke"
+            },
+            {
+              "name": "client_secret",
+              "value": "80CrDPjecW8G5AFTDFFR84A5sRCIqhS1"
+            },
+            {
+              "name": "code",
+              "value": "={{ $json.query.code }}"
+            },
+            {
+              "name": "grant_type",
+              "value": "authorization_code"
+            },
+            {
+              "name": "redirect_uri",
+              "value": "={{ $json.webhookUrl }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        144,
+        -288
+      ],
+      "id": "e2faed8b-a0d9-4096-a9aa-ae5c603850ea",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/oauth/token/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_key",
+              "value": "sbawneuyxs5aelzwke"
+            },
+            {
+              "name": "client_secret",
+              "value": "80CrDPjecW8G5AFTDFFR84A5sRCIqhS1"
+            },
+            {
+              "name": "grant_type",
+              "value": "refresh_token"
+            },
+            {
+              "name": "refresh_token",
+              "value": "rft.fv3UXWBNjAbqDc1lheOvPiP60YUkeMvWwBnII0OUWCuRnfu7XWO7dfBxwydx!6301.va"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        144,
+        -64
+      ],
+      "id": "024dc3d9-54e6-4eca-aa49-30e2160afe90",
+      "name": "RefreshArashi"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/oauth/token/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_key",
+              "value": "sbawneuyxs5aelzwke"
+            },
+            {
+              "name": "client_secret",
+              "value": "80CrDPjecW8G5AFTDFFR84A5sRCIqhS1"
+            },
+            {
+              "name": "grant_type",
+              "value": "refresh_token"
+            },
+            {
+              "name": "refresh_token",
+              "value": "rft.fv3UXWBNjAbqDc1lheOvPiP60YUkeMvWwBnII0OUWCuRnfu7XWO7dfBxwydx!6301.va"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        144,
+        128
+      ],
+      "id": "262bf0b7-e4a0-4a6f-b632-fc239972e1bf",
+      "name": "RefreshKawJaw"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "QXLz5roAYJM0DmKD",
+          "mode": "list",
+          "cachedResultName": "TTToken",
+          "cachedResultUrl": "/projects/iPhp1u19TWCrf8bm/datatables/QXLz5roAYJM0DmKD"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Brand",
+              "keyValue": "=Arashi"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Token": "={{ $json.access_token }}"
+          },
+          "matchingColumns": [
+            "Token"
+          ],
+          "schema": [
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Token",
+              "displayName": "Token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "RefreshToken",
+              "displayName": "RefreshToken",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "dryRun": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -64
+      ],
+      "id": "d0c16d6d-006c-4b06-a7f1-8a2605af0ea9",
+      "name": "UpdateArashi"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "QXLz5roAYJM0DmKD",
+          "mode": "list",
+          "cachedResultName": "TTToken",
+          "cachedResultUrl": "/projects/iPhp1u19TWCrf8bm/datatables/QXLz5roAYJM0DmKD"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Brand",
+              "keyValue": "=KawJaw"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Token": "={{ $json.access_token }}"
+          },
+          "matchingColumns": [
+            "Token"
+          ],
+          "schema": [
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Token",
+              "displayName": "Token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "RefreshToken",
+              "displayName": "RefreshToken",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "dryRun": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        368,
+        128
+      ],
+      "id": "d420f443-11fb-405f-80ac-d4299bb3774f",
+      "name": "UpdateKawJaw"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RefreshArashi",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RefreshKawJaw",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RefreshArashi": {
+      "main": [
+        [
+          {
+            "node": "UpdateArashi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RefreshKawJaw": {
+      "main": [
+        [
+          {
+            "node": "UpdateKawJaw",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2e526f80-134e-4738-aafb-fe039f18e3e6",
+  "meta": {
+    "instanceId": "6ce6cc26d7cded381401160844523e16bd41538e7aeb8e50d80a70af08a2809d"
+  },
+  "id": "fJDbSUAkP0X3qvqZ",
+  "tags": []
+}

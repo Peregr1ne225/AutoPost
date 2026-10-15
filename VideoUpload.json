@@ -1,0 +1,3212 @@
+{
+  "name": "VideoUpload",
+  "nodes": [
+    {
+      "parameters": {
+        "protocol": "sftp",
+        "operation": "upload",
+        "path": "=upload/{{ $binary.data.fileName.split(\" \").join(\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ftp",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        1232
+      ],
+      "id": "57bac6f0-f2a5-4e93-8c0f-2b960d657d05",
+      "name": "Upload",
+      "credentials": {
+        "sftp": {
+          "id": "wnHTiY3hZuR9zH5O",
+          "name": "SFTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "949730374885946",
+        "edge": "videos",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "title",
+                "value": "={{ $('GetPostReady').item.json.Caption }}"
+              },
+              {
+                "name": "file_url",
+                "value": "={{ $json.link }}"
+              },
+              {
+                "name": "descriptiom",
+                "value": "={{ $('GetPostReady').item.json.Caption }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1728,
+        512
+      ],
+      "id": "49ea3965-353b-445b-84ec-e644f7ce9554",
+      "name": "Arashi Video",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "0SwANowexKPo3VPA",
+          "name": "ArashiFB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('GetPostReady').item.json['Link Final'] }}",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        864,
+        1232
+      ],
+      "id": "a7fba164-1099-4ac8-ac10-6aef90e05de2",
+      "name": "Download",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "M8o8a1gzZZw5c14G",
+          "name": "BBTDrive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "17841479599975471",
+        "edge": "media",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "video_url",
+                "value": "={{ $json.link }}    "
+              },
+              {
+                "name": "caption",
+                "value": "={{ $('GetPostReady').item.json.Caption }}"
+              },
+              {
+                "name": "media_type",
+                "value": "REELS"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        48
+      ],
+      "id": "9d6f49a5-0d2e-4351-bbcd-f53935afb352",
+      "name": "IGArashi",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2656,
+        48
+      ],
+      "id": "13f65a17-afc5-4376-a867-461e29bc3e19",
+      "name": "Wait",
+      "webhookId": "9a350f5c-37b8-4c2f-88d8-39ecf5c7ee72"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2880,
+        672
+      ],
+      "id": "a2bb5163-63a2-4223-a0eb-d66a4dfe649b",
+      "name": "Wait1",
+      "webhookId": "c2308abe-fbf3-42b5-a271-4a1f1b409bb5"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            },
+            {
+              "triggerAtHour": 18
+            },
+            {
+              "triggerAtHour": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -256,
+        1232
+      ],
+      "id": "831b8ffa-aad2-4acc-a831-85d2219c0521",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Video plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "=AE FINAL CHECK 2 ส่งไป Admin",
+              "lookupValue": "false"
+            },
+            {
+              "lookupColumn": "=Status",
+              "lookupValue": "false"
+            }
+          ]
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRange",
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -32,
+        1232
+      ],
+      "id": "682153ea-a90c-4025-b729-e4c2a632f3a7",
+      "name": "GetPostReady",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "66d79c10-005d-476d-aff9-9b5fc4443773",
+              "leftValue": "={{ DateTime.fromFormat($json.Date, \"dd/MM/yyyy\")}}",
+              "rightValue": "={{ $('Schedule Trigger').item.json.timestamp.toDateTime().startOf(\"day\") }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "336f1c0a-5c80-4859-aeab-0454f4dc6eaf",
+              "leftValue": "={{ DateTime.fromFormat($json.Time, \"HH:mm:ss\")}}",
+              "rightValue": "={{ $('Schedule Trigger').item.json.timestamp.toDateTime().startOf(\"hour\") }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        640,
+        1232
+      ],
+      "id": "5f29f1e1-f0f3-4c70-9693-e924820812dc",
+      "name": "DateTimeCheck",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "23b60f2e-dcd3-43b4-8487-6e6d3b9618fc",
+              "name": "Date",
+              "value": "={{ $json.Date === \"\" ? \"25/08/2003\" : $json.Date }}",
+              "type": "string"
+            },
+            {
+              "id": "5aedf317-a760-4caa-b98e-491cafa827ae",
+              "name": "Time",
+              "value": "={{ $json.Time === \"\" ? \"00:00:00\" : $json.Time }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        1232
+      ],
+      "id": "1c723632-ada7-46ba-af96-d08659d91c83",
+      "name": "DateTime"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "246225ab-365e-42d3-86b9-6457fe6cd9d7",
+              "name": "file_name",
+              "value": "={{ $binary.data.fileName.split(\" \").join(\"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "e7464271-8121-47ae-a235-75378656683b",
+              "name": "link",
+              "value": "=https://n8n.greekok.store/files/{{ $binary.data.fileName.split(\" \").join(\"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "8ff5eb3c-a4da-4bb1-b05f-b9f9171a1c76",
+              "name": "path",
+              "value": "=upload/{{ $binary.data.fileName.split(\" \").join(\"\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        1232
+      ],
+      "id": "adebbcf8-9040-438f-90a8-ed2094ce7c83",
+      "name": "FileInfo"
+    },
+    {
+      "parameters": {
+        "protocol": "sftp",
+        "operation": "delete",
+        "path": "={{ $('FileInfo').item.json.path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ftp",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        1344
+      ],
+      "id": "a3ced4a3-1a3a-4048-8496-9cee6f1c7483",
+      "name": "DeleteFile",
+      "credentials": {
+        "sftp": {
+          "id": "wnHTiY3hZuR9zH5O",
+          "name": "SFTP account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        192,
+        1232
+      ],
+      "id": "1d4d3f8f-1cbf-46f7-af7d-a976eb2cacb7",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "=v24.0",
+        "node": "={{ $json.id }}",
+        "options": {
+          "fields": {
+            "field": [
+              {
+                "name": "id"
+              },
+              {
+                "name": "status"
+              },
+              {
+                "name": "status_code"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2208,
+        48
+      ],
+      "id": "32a39f5d-7806-4f22-bd25-fa2c565e9a4d",
+      "name": "ArashiStatus",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "17841479599975471",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2656,
+        -96
+      ],
+      "id": "3b60042f-f8e8-4c96-a991-3655da9a95bd",
+      "name": "ArashiIGPublish",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "QXLz5roAYJM0DmKD",
+          "mode": "list",
+          "cachedResultName": "TTToken",
+          "cachedResultUrl": "/projects/iPhp1u19TWCrf8bm/datatables/QXLz5roAYJM0DmKD"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Brand",
+              "keyValue": "Arashi"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        848
+      ],
+      "id": "a058b30b-f967-4cb5-8ffd-a0623a088c69",
+      "name": "ArashiToken"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('GetPostReady').item.json.Brand }}",
+                    "rightValue": "Arashi",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8fdb13c1-fc32-4903-bcca-13484ca0839d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Arashi"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ad2ec76a-5314-40e1-9c5c-b4334d40d75e",
+                    "leftValue": "={{ $('GetPostReady').item.json.Brand }}",
+                    "rightValue": "KawJaw",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "KawJaw"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1536,
+        1120
+      ],
+      "id": "df24b14f-a265-4432-8ca6-26dbc13bfa49",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/creator_info/query/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.Token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1984,
+        848
+      ],
+      "id": "faa485d2-03d5-48c4-b2a5-23b2a9c42110",
+      "name": "GetArashiTT"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/video/init/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('ArashiToken').item.json.Token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"post_info\": {\n    \"title\": \"{{ $('GetPostReady').item.json.Caption }}\",\n    \"privacy_level\": \"SELF_ONLY\",\n    \"disable_duet\": true,\n    \"disable_comment\": true,\n    \"disable_stitch\": false,\n    \"video_cover_timestamp_ms\": 1000\n  },\n  \"source_info\": {\n      \"source\": \"PULL_FROM_URL\",\n      \"video_url\": \"{{ $('FileInfo').item.json.link }}\"\n  }\n} ",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2208,
+        848
+      ],
+      "id": "9cecadb4-3a50-4e5f-ac0f-0dc289678983",
+      "name": "PostArashi"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/status/fetch/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('ArashiToken').item.json.Token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "publish_id",
+              "value": "={{ $json.data.publish_id }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2432,
+        848
+      ],
+      "id": "804827b0-215d-4edf-834a-ef80212c8828",
+      "name": "GetArashiStatus"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "PUBLISH_COMPLETE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3c964ddb-2ed8-4933-8eae-5fe5aea62683"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SUCCESS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "369d6045-3814-478a-a296-1cfe27ea069b",
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "FAILED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "FAIL"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2656,
+        688
+      ],
+      "id": "95d70569-fe12-4e77-bacc-33afb0db078f",
+      "name": "ArashiTTCheck"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2624,
+        1472
+      ],
+      "id": "4430565d-6540-417f-939d-2fc924ea919a",
+      "name": "Wait2",
+      "webhookId": "9a350f5c-37b8-4c2f-88d8-39ecf5c7ee72"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2880,
+        1984
+      ],
+      "id": "153e8d92-7d91-402b-a5f3-b0e24d21bf60",
+      "name": "Wait3",
+      "webhookId": "c2308abe-fbf3-42b5-a271-4a1f1b409bb5"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "=v24.0",
+        "node": "={{ $json.id }}",
+        "options": {
+          "fields": {
+            "field": [
+              {
+                "name": "id"
+              },
+              {
+                "name": "status"
+              },
+              {
+                "name": "status_code"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2208,
+        1424
+      ],
+      "id": "50ef2c70-9f7f-48b8-b3d7-0e81d31c56f4",
+      "name": "KawJawStatus",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "17841479590856994",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2656,
+        1328
+      ],
+      "id": "9ab55c7f-b324-4f2a-8a24-85a872ebca20",
+      "name": "KawJawIGPublish",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "899265203273148",
+        "edge": "videos",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "title",
+                "value": "={{ $('GetPostReady').item.json.Caption }}"
+              },
+              {
+                "name": "file_url",
+                "value": "={{ $json.link }}"
+              },
+              {
+                "name": "descriptiom",
+                "value": "={{ $('GetPostReady').item.json.Caption }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        1616
+      ],
+      "id": "bc590988-5f49-4e72-b889-8b62077d9438",
+      "name": "KawJawFBVideo",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "HwDOiaFALqDbrJn2",
+          "name": "KawJawFB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "QXLz5roAYJM0DmKD",
+          "mode": "list",
+          "cachedResultName": "TTToken",
+          "cachedResultUrl": "/projects/iPhp1u19TWCrf8bm/datatables/QXLz5roAYJM0DmKD"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Brand",
+              "keyValue": "KawJaw"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        1904
+      ],
+      "id": "49d60d3b-c056-49a3-a3a4-3666df7af0d7",
+      "name": "KawJawToken(Not)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/creator_info/query/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.Token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1984,
+        1904
+      ],
+      "id": "8821bb28-f2c2-4af4-9065-fd3ad58860cc",
+      "name": "GetKawJawTT"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/video/init/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('KawJawToken(Not)').item.json.Token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"post_info\": {\n    \"title\": \"{{ $('GetPostReady').item.json.Caption }}\",\n    \"privacy_level\": \"SELF_ONLY\",\n    \"disable_duet\": true,\n    \"disable_comment\": true,\n    \"disable_stitch\": false,\n    \"video_cover_timestamp_ms\": 1000\n  },\n  \"source_info\": {\n      \"source\": \"PULL_FROM_URL\",\n      \"video_url\": \"{{ $('FileInfo').item.json.link }}\"\n  }\n} ",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2208,
+        1904
+      ],
+      "id": "44da7e1b-5919-4e7e-9788-1e2f886bb7dd",
+      "name": "PostKawJaw"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/status/fetch/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('KawJawToken(Not)').item.json.Token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "publish_id",
+              "value": "={{ $json.data.publish_id }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2432,
+        1904
+      ],
+      "id": "f6acc999-17df-4486-b36e-bfa43a6c412c",
+      "name": "GetKawJawStatus"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "PUBLISH_COMPLETE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3c964ddb-2ed8-4933-8eae-5fe5aea62683"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SUCCESS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "369d6045-3814-478a-a296-1cfe27ea069b",
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "FAILED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "FAIL"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2656,
+        1744
+      ],
+      "id": "40bbd884-6ba8-4e43-8354-083a8f57cdd1",
+      "name": "KawJawTTCheck"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Video plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "No.": "={{ $('GetPostReady').item.json['No.'] }}",
+            "โพสต์FB": "true"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "No.",
+              "displayName": "No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Brief google-slide",
+              "displayName": "Brief google-slide",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "PM CHECK ส่งไป EDITOR",
+              "displayName": "PM CHECK ส่งไป EDITOR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EDITOR CHECK ส่งไป EDITOR",
+              "displayName": "EDITOR CHECK ส่งไป EDITOR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Target",
+              "displayName": "Target",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content Type",
+              "displayName": "Content Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content name",
+              "displayName": "Content name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันส่งมอบงาน",
+              "displayName": "วันส่งมอบงาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link งาน",
+              "displayName": "Link งาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link ฟุต",
+              "displayName": "Link ฟุต",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 1",
+              "displayName": "วันแก้ไข ครั้ง 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 2",
+              "displayName": "วันแก้ไข ครั้ง 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 3",
+              "displayName": "วันแก้ไข ครั้ง 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link Final",
+              "displayName": "Link Final",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 1 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 1 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link brief caption",
+              "displayName": "Link brief caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 2 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 2 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์FB",
+              "displayName": "โพสต์FB",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "โพสต์TT",
+              "displayName": "โพสต์TT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์IG",
+              "displayName": "โพสต์IG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1984,
+        496
+      ],
+      "id": "4c0f158a-627d-4c5b-9874-691b6ec7eccc",
+      "name": "FBTrue",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Video plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "No.": "={{ $('GetPostReady').item.json['No.'] }}",
+            "โพสต์IG": "true"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "No.",
+              "displayName": "No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Brief google-slide",
+              "displayName": "Brief google-slide",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "PM CHECK ส่งไป EDITOR",
+              "displayName": "PM CHECK ส่งไป EDITOR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EDITOR CHECK ส่งไป EDITOR",
+              "displayName": "EDITOR CHECK ส่งไป EDITOR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Target",
+              "displayName": "Target",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content Type",
+              "displayName": "Content Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content name",
+              "displayName": "Content name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันส่งมอบงาน",
+              "displayName": "วันส่งมอบงาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link งาน",
+              "displayName": "Link งาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link ฟุต",
+              "displayName": "Link ฟุต",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 1",
+              "displayName": "วันแก้ไข ครั้ง 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 2",
+              "displayName": "วันแก้ไข ครั้ง 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 3",
+              "displayName": "วันแก้ไข ครั้ง 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link Final",
+              "displayName": "Link Final",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 1 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 1 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link brief caption",
+              "displayName": "Link brief caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 2 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 2 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์FB",
+              "displayName": "โพสต์FB",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์TT",
+              "displayName": "โพสต์TT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์IG",
+              "displayName": "โพสต์IG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2880,
+        -96
+      ],
+      "id": "7a90689a-e08c-4786-9679-78f642b5ca4f",
+      "name": "IGTrue",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Video plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "No.": "={{ $('GetPostReady').item.json['No.'] }}",
+            "โพสต์TT": "true"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "No.",
+              "displayName": "No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Brief google-slide",
+              "displayName": "Brief google-slide",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "PM CHECK ส่งไป EDITOR",
+              "displayName": "PM CHECK ส่งไป EDITOR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EDITOR CHECK ส่งไป EDITOR",
+              "displayName": "EDITOR CHECK ส่งไป EDITOR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Target",
+              "displayName": "Target",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content Type",
+              "displayName": "Content Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content name",
+              "displayName": "Content name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันส่งมอบงาน",
+              "displayName": "วันส่งมอบงาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link งาน",
+              "displayName": "Link งาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link ฟุต",
+              "displayName": "Link ฟุต",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 1",
+              "displayName": "วันแก้ไข ครั้ง 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 2",
+              "displayName": "วันแก้ไข ครั้ง 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 3",
+              "displayName": "วันแก้ไข ครั้ง 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link Final",
+              "displayName": "Link Final",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 1 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 1 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link brief caption",
+              "displayName": "Link brief caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 2 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 2 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์FB",
+              "displayName": "โพสต์FB",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์TT",
+              "displayName": "โพสต์TT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "โพสต์IG",
+              "displayName": "โพสต์IG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2880,
+        1056
+      ],
+      "id": "a9a52f0d-b67a-48a0-9f05-84a5179fcf56",
+      "name": "TTTrue",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Video plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "No.": "={{ $('GetPostReady').item.json['No.'] }}",
+            "Status": "true"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "No.",
+              "displayName": "No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Brief google-slide",
+              "displayName": "Brief google-slide",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "PM CHECK ส่งไป EDITOR",
+              "displayName": "PM CHECK ส่งไป EDITOR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EDITOR CHECK ส่งไป EDITOR",
+              "displayName": "EDITOR CHECK ส่งไป EDITOR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Target",
+              "displayName": "Target",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content Type",
+              "displayName": "Content Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content name",
+              "displayName": "Content name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันส่งมอบงาน",
+              "displayName": "วันส่งมอบงาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link งาน",
+              "displayName": "Link งาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link ฟุต",
+              "displayName": "Link ฟุต",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 1",
+              "displayName": "วันแก้ไข ครั้ง 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 2",
+              "displayName": "วันแก้ไข ครั้ง 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันแก้ไข ครั้ง 3",
+              "displayName": "วันแก้ไข ครั้ง 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link Final",
+              "displayName": "Link Final",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 1 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 1 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link brief caption",
+              "displayName": "Link brief caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 2 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 2 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์FB",
+              "displayName": "โพสต์FB",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์TT",
+              "displayName": "โพสต์TT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์IG",
+              "displayName": "โพสต์IG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3328,
+        336
+      ],
+      "id": "54a6eee6-95f2-466c-922a-ae721ad3ac5d",
+      "name": "Complete",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3104,
+        320
+      ],
+      "id": "5ec8de3c-96c6-448b-a51c-b31bb91ac9fe",
+      "name": "Merge",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a13ac3fb-8572-4283-ba25-7cb6cf8498c6",
+              "name": "message",
+              "value": "No Brand Selected",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2880,
+        1248
+      ],
+      "id": "f04b9356-76c2-4426-a309-d73f03eafbd7",
+      "name": "NoBrand"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "FINISHED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "34ad18b8-911e-4a6d-a1b5-f53a4a316aca"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Finish"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00668b4e-5139-419d-92b0-07dcbc199e10",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "progress"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2432,
+        1344
+      ],
+      "id": "21cebd93-5241-4ea2-9ee4-fb32581cfe72",
+      "name": "KawJawIGCheck"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "FINISHED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "34ad18b8-911e-4a6d-a1b5-f53a4a316aca"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Finish"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00668b4e-5139-419d-92b0-07dcbc199e10",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "progress"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2432,
+        -64
+      ],
+      "id": "8ba38b27-a4a7-4666-a8fc-24423b2d2889",
+      "name": "ArashiIGCheck"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a2944031-e9ad-44b4-bddf-12a2cafea786",
+              "name": "message",
+              "value": "IG Error",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2656,
+        304
+      ],
+      "id": "a6efdd00-0023-4f97-af03-622297c2e2c0",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"Ce3eb23513747a4bd1f3a0919286d3df6\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"{{$json.message}} At no {{ $('GetPostReady').item.json['No.'] }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3296,
+        752
+      ],
+      "id": "648cff9f-e56a-4eed-896b-e4a3d543b191",
+      "name": "AdminReport",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "v2SYKy78agqrpA6K",
+          "name": "LineBBT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## TikTok Arashi\n",
+        "height": 544,
+        "width": 1296
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1728,
+        656
+      ],
+      "typeVersion": 1,
+      "id": "475458d6-77b2-4232-89d2-faff5a1b0a9e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a2944031-e9ad-44b4-bddf-12a2cafea786",
+              "name": "message",
+              "value": "TT Error",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2880,
+        864
+      ],
+      "id": "8762421c-331a-4d53-b339-5cb124287aff",
+      "name": "TT"
+    },
+    {
+      "parameters": {
+        "content": "## TikTok KawJaw\n",
+        "height": 544,
+        "width": 1296,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1744,
+        1728
+      ],
+      "typeVersion": 1,
+      "id": "5675bebe-1664-4e1e-bad3-08a81ee4f5b8",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## IG KawJaw",
+        "height": 352,
+        "width": 848,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1936,
+        1312
+      ],
+      "typeVersion": 1,
+      "id": "de7c0123-1b4b-4692-8190-aa723b8f2db8",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## IG Arashi",
+        "height": 352,
+        "width": 848,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1968,
+        -112
+      ],
+      "typeVersion": 1,
+      "id": "71b57cfa-50b1-4fb1-9299-433d170cad05",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "17841479590856994",
+        "edge": "media",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "video_url",
+                "value": "={{ $json.link }}    "
+              },
+              {
+                "name": "caption",
+                "value": "={{ $('GetPostReady').item.json.Caption }}"
+              },
+              {
+                "name": "media_type",
+                "value": "REELS"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        1424
+      ],
+      "id": "964327e0-2d18-483b-b2d4-2c2f657f016c",
+      "name": "IGKawJaw",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Upload": {
+      "main": [
+        [
+          {
+            "node": "FileInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download": {
+      "main": [
+        [
+          {
+            "node": "Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Arashi Video": {
+      "main": [
+        [
+          {
+            "node": "FBTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IGArashi": {
+      "main": [
+        [
+          {
+            "node": "ArashiStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "ArashiStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "GetArashiStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GetPostReady",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetPostReady": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DateTimeCheck": {
+      "main": [
+        [
+          {
+            "node": "Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DateTime": {
+      "main": [
+        [
+          {
+            "node": "DateTimeCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FileInfo": {
+      "main": [
+        [
+          {
+            "node": "DeleteFile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "DateTime",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiStatus": {
+      "main": [
+        [
+          {
+            "node": "ArashiIGCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiIGPublish": {
+      "main": [
+        [
+          {
+            "node": "IGTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiToken": {
+      "main": [
+        [
+          {
+            "node": "GetArashiTT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "ArashiToken",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IGArashi",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Arashi Video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IGKawJaw",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "KawJawFBVideo",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "KawJawToken(Not)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NoBrand",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetArashiTT": {
+      "main": [
+        [
+          {
+            "node": "PostArashi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostArashi": {
+      "main": [
+        [
+          {
+            "node": "GetArashiStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetArashiStatus": {
+      "main": [
+        [
+          {
+            "node": "ArashiTTCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiTTCheck": {
+      "main": [
+        [
+          {
+            "node": "TTTrue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "KawJawStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "GetKawJawStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawStatus": {
+      "main": [
+        [
+          {
+            "node": "KawJawIGCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawToken(Not)": {
+      "main": [
+        [
+          {
+            "node": "GetKawJawTT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetKawJawTT": {
+      "main": [
+        [
+          {
+            "node": "PostKawJaw",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostKawJaw": {
+      "main": [
+        [
+          {
+            "node": "GetKawJawStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetKawJawStatus": {
+      "main": [
+        [
+          {
+            "node": "KawJawTTCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawTTCheck": {
+      "main": [
+        [
+          {
+            "node": "TTTrue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawIGPublish": {
+      "main": [
+        [
+          {
+            "node": "IGTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawFBVideo": {
+      "main": [
+        [
+          {
+            "node": "FBTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IGTrue": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "FBTrue": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TTTrue": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiIGCheck": {
+      "main": [
+        [
+          {
+            "node": "ArashiIGPublish",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawIGCheck": {
+      "main": [
+        [
+          {
+            "node": "KawJawIGPublish",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NoBrand": {
+      "main": [
+        [
+          {
+            "node": "AdminReport",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AdminReport",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TT": {
+      "main": [
+        [
+          {
+            "node": "AdminReport",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IGKawJaw": {
+      "main": [
+        [
+          {
+            "node": "KawJawStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b86bcd78-dde3-4e77-bccb-d5169adcabca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6ce6cc26d7cded381401160844523e16bd41538e7aeb8e50d80a70af08a2809d"
+  },
+  "id": "K5Sue61fcArFJCcW",
+  "tags": []
+}

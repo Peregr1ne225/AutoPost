@@ -1,0 +1,4438 @@
+{
+  "name": "Photo Upload",
+  "nodes": [
+    {
+      "parameters": {
+        "protocol": "sftp",
+        "operation": "delete",
+        "path": "={{ $('FileInfo').item.json.path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ftp",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        2720
+      ],
+      "id": "d98cdc66-201d-4588-8461-e6a7b07fd907",
+      "name": "Delete",
+      "credentials": {
+        "sftp": {
+          "id": "wnHTiY3hZuR9zH5O",
+          "name": "SFTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "protocol": "sftp",
+        "operation": "upload",
+        "path": "=upload/{{ $binary.data.fileName.split(\" \").join(\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ftp",
+      "typeVersion": 1,
+      "position": [
+        928,
+        2528
+      ],
+      "id": "fe85fbc3-67d7-41ab-be61-d41b3b000f11",
+      "name": "Upload",
+      "credentials": {
+        "sftp": {
+          "id": "wnHTiY3hZuR9zH5O",
+          "name": "SFTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        480,
+        2528
+      ],
+      "id": "bf16038b-9678-442b-9958-71c95385cde9",
+      "name": "Download",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "M8o8a1gzZZw5c14G",
+          "name": "BBTDrive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "='{{ $json.Folder }}' in parents ",
+        "returnAll": true,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        256,
+        2528
+      ],
+      "id": "cd8eeccd-7efe-4bff-983a-098d84b1ed34",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "M8o8a1gzZZw5c14G",
+          "name": "BBTDrive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "949730374885946",
+        "edge": "feed",
+        "options": {
+          "queryParametersJson": "={{ $json.value }}"
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        2848
+      ],
+      "id": "37a2d91b-2662-4865-858f-cbb1a675fe4c",
+      "name": "MultiArashi",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "0SwANowexKPo3VPA",
+          "name": "ArashiFB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "resize",
+        "width": 1080,
+        "height": 1080,
+        "resizeOption": "minimumArea",
+        "options": {
+          "format": "jpeg"
+        }
+      },
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        704,
+        2528
+      ],
+      "id": "f6ed7951-e6f9-4634-9525-dcddbb8abde0",
+      "name": "Edit Image1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst caption = $(\"PostFeed\").first().json.Caption;\nlet str = `{ \n  \"message\": \"${caption}\",\n`;\n\nitems.forEach((item, index) => {\n\tconst id = item.json.id;\n\tstr += `  \"attached_media[${index}]\": {\"media_fbid\":\"${id}\"},\\n`;\n});\n\nstr = str.trim().replace(/,$/, \"\");\nstr += ` \n}`;\n\nreturn [{\n\tjson: {\n\t\tvalue: str\n\t}\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2496,
+        2848
+      ],
+      "id": "259d5614-342b-465d-9f07-ba4768a049f3",
+      "name": "MultiScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "PUBLISH_COMPLETE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3606a05d-a9a2-4bab-b972-a19ffc08afdf"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SUCCESS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1899065e-501c-4098-add3-19f5900dc934",
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "FAILED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "FAIL"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3168,
+        1072
+      ],
+      "id": "61900af4-6c13-4ff5-9007-e4829bd34e43",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            },
+            {
+              "triggerAtHour": 18
+            },
+            {
+              "triggerAtHour": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -864,
+        2528
+      ],
+      "id": "632e3063-73bd-491f-a77f-cbc6c8003c32",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1827209226,
+          "mode": "list",
+          "cachedResultName": "Graphic plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit#gid=1827209226"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "=AE FINAL CHECK 2 ส่งไป Admin",
+              "lookupValue": "true"
+            },
+            {
+              "lookupColumn": "=Status",
+              "lookupValue": "false"
+            }
+          ]
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRange",
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -640,
+        2528
+      ],
+      "id": "06f36d7b-55f2-452e-81ba-3e5ff5331c7d",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "23b8826b-cc37-49a8-9042-3e2280590662",
+              "name": "Folder",
+              "value": "={{ $('Get row(s) in sheet').item.json['Link Final'].split(\"/\")[7] }}",
+              "type": "string"
+            },
+            {
+              "id": "44112dca-1e23-46fa-8d62-6994deb4eae8",
+              "name": "Brand",
+              "value": "={{ $('Get row(s) in sheet').item.json.Brand }}",
+              "type": "string"
+            },
+            {
+              "id": "1ac3666f-2acf-4cf8-97bc-956e30eb7f77",
+              "name": "Caption",
+              "value": "={{ $('Get row(s) in sheet').item.json.Caption }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        2528
+      ],
+      "id": "634e937b-7db0-4536-841b-c0475a12b30f",
+      "name": "PostFeed"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "PUBLISH_COMPLETE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3606a05d-a9a2-4bab-b972-a19ffc08afdf"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SUCCESS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1899065e-501c-4098-add3-19f5900dc934",
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "FAILED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "FAIL"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3168,
+        496
+      ],
+      "id": "5606bcb4-6eb2-4997-bdf5-bab1a5277efa",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3392,
+        512
+      ],
+      "id": "3dffffd4-2347-400b-b866-a10a574fa864",
+      "name": "Wait1",
+      "webhookId": "14d36083-bdd2-4940-8030-7560abc1b274"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "246225ab-365e-42d3-86b9-6457fe6cd9d7",
+              "name": "file_name",
+              "value": "={{ $binary.data.fileName.split(\" \").join(\"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "e7464271-8121-47ae-a235-75378656683b",
+              "name": "link",
+              "value": "=https://n8n.greekok.store/files/{{ $binary.data.fileName.split(\" \").join(\"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "8ff5eb3c-a4da-4bb1-b05f-b9f9171a1c76",
+              "name": "path",
+              "value": "=upload/{{ $binary.data.fileName.split(\" \").join(\"\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1152,
+        2528
+      ],
+      "id": "5d9dc6ce-57e5-4a7d-b0e9-f7010e6d9ee5",
+      "name": "FileInfo"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "QXLz5roAYJM0DmKD",
+          "mode": "list",
+          "cachedResultName": "TTToken",
+          "cachedResultUrl": "/projects/iPhp1u19TWCrf8bm/datatables/QXLz5roAYJM0DmKD"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Brand",
+              "keyValue": "Arashi"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        512
+      ],
+      "id": "9ba8a235-0ee6-45fe-aaca-255f97cd6fa2",
+      "name": "GetArashiToken"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/content/init/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('GetArashiToken').item.json.Token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"media_type\" : \"PHOTO\",\n  \"post_mode\" : \"DIRECT_POST\",\n  \"post_info\" : {\n    \"title\" : \"Arashi\",\n    \"description\" : \"{{ $('PostFeed').item.json.Caption }}\",\n    \"privacy_level\" : \"SELF_ONLY\",\n    \"disable_comment\" : true,\n    \"auto_add_music\" : false,\n    \"brand_content_toggle\" : false,\n    \"brand_organic_toggle\" : true\n  },\n  \"source_info\" : {\n    \"source\" : \"PULL_FROM_URL\",\n    \"photo_images\" : [{{ $('TTList').item.json.link }}],\n    \"photo_cover_index\" : 0\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2720,
+        512
+      ],
+      "id": "d7a499a6-0ac0-4d91-b656-62efafc7c6a4",
+      "name": "PostArashi"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/creator_info/query/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.Token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2496,
+        1088
+      ],
+      "id": "7bf87695-ce83-4c3d-a96a-b933d2867c3d",
+      "name": "GetKawJawInfo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/creator_info/query/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.Token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2496,
+        512
+      ],
+      "id": "72aecbff-f1ad-4e25-bce1-0790757c6aa6",
+      "name": "GetArashiInfo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/content/init/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('GetKawJawToken(NOT)').item.json.Token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"media_type\" : \"PHOTO\",\n  \"post_mode\" : \"DIRECT_POST\",\n  \"post_info\" : {\n    \"title\" : \"Arashi\",\n    \"description\" : \"{{ $('PostFeed').item.json.Caption }}\",\n    \"privacy_level\" : \"SELF_ONLY\",\n    \"disable_comment\" : true,\n    \"auto_add_music\" : false,\n    \"brand_content_toggle\" : false,\n    \"brand_organic_toggle\" : true\n  },\n  \"source_info\" : {\n    \"source\" : \"PULL_FROM_URL\",\n    \"photo_images\" : [{{ $('TTList').item.json.link }}],\n    \"photo_cover_index\" : 0\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2720,
+        1088
+      ],
+      "id": "f2f26975-7d2c-47b9-998d-ea78071776ba",
+      "name": "PostKawJaw"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/status/fetch",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('GetKawJawToken(NOT)').item.json.Token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "publish_id",
+              "value": "={{ $json.data.publish_id }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2944,
+        1088
+      ],
+      "id": "03979a04-360c-4d2c-b588-bb13655bbac7",
+      "name": "KawJawTTStatus"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/status/fetch",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('GetArashiToken').item.json.Token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "publish_id",
+              "value": "={{ $json.data.publish_id }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2944,
+        512
+      ],
+      "id": "6401b179-4c39-475f-9ffc-9f79847869b4",
+      "name": "ArashiTTStatus"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "link"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        2528
+      ],
+      "id": "98c58aa9-0810-450d-8f21-62a04dab063f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "949730374885946",
+        "edge": "photos",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message",
+                "value": "={{ $('PostFeed').item.json.Caption }}"
+              },
+              {
+                "name": "url",
+                "value": "={{ $('FileInfo').item.json.link }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        1600
+      ],
+      "id": "dd1c794f-32c4-40a2-87e7-ea2589a7bbef",
+      "name": "ArashiSingle",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "0SwANowexKPo3VPA",
+          "name": "ArashiFB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "QXLz5roAYJM0DmKD",
+          "mode": "list",
+          "cachedResultName": "TTToken",
+          "cachedResultUrl": "/projects/iPhp1u19TWCrf8bm/datatables/QXLz5roAYJM0DmKD"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Brand",
+              "keyValue": "KawJaw"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        1088
+      ],
+      "id": "ef324708-0eb7-4f1c-a4b7-ae86edbc28fa",
+      "name": "GetKawJawToken(NOT)"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "=v24.0",
+        "node": "={{ $json.id }}",
+        "options": {
+          "fields": {
+            "field": [
+              {
+                "name": "id"
+              },
+              {
+                "name": "status"
+              },
+              {
+                "name": "status_code"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2944,
+        2544
+      ],
+      "id": "582c78f8-8d11-4436-bb22-ab9017cbd73a",
+      "name": "KawJawIGStatus",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "=v24.0",
+        "node": "={{ $json.id }}",
+        "options": {
+          "fields": {
+            "field": [
+              {
+                "name": "id"
+              },
+              {
+                "name": "status"
+              },
+              {
+                "name": "status_code"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2944,
+        2096
+      ],
+      "id": "d92454d1-7eb2-49d2-859c-fd58395f7490",
+      "name": "ArashiIGStatus",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f72c7a81-9f25-4448-9e6f-f34de189cb7e",
+              "leftValue": "={{ $json.data.length }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1600,
+        2528
+      ],
+      "id": "27cd16ec-5518-4986-b8f5-c08bab5e51a8",
+      "name": "1orMultiFBIG",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "949730374885946",
+        "edge": "photos",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "url",
+                "value": "={{ $json.link }}"
+              },
+              {
+                "name": "published",
+                "value": "false"
+              },
+              {
+                "name": "temporary",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        2848
+      ],
+      "id": "26211864-115c-4a8a-9ee3-0f1da34f0543",
+      "name": "ArashiMT",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "0SwANowexKPo3VPA",
+          "name": "ArashiFB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "30881947-8db7-4d3d-a497-f985f47a14b4",
+              "name": "link",
+              "value": "=\"{{ $json.link }}\"",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1600,
+        880
+      ],
+      "id": "5a0c1175-1418-4aa0-8991-3edd61ded2b9",
+      "name": "TTLink"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "link"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        880
+      ],
+      "id": "77e5df42-3bb2-4028-a354-81d2b7a003e8",
+      "name": "TTList"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "link",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        3168
+      ],
+      "id": "2ad72c3d-3567-4307-ae83-cb5d6f2e6846",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst caption = $(\"PostFeed\").first().json.Caption;\nlet str = `{ \n  \"message\": \"${caption}\",\n`;\n\nitems.forEach((item, index) => {\n\tconst id = item.json.id;\n\tstr += `  \"attached_media[${index}]\": {\"media_fbid\":\"${id}\"},\\n`;\n});\n\nstr = str.trim().replace(/,$/, \"\");\nstr += ` \n}`;\n\nreturn [{\n\tjson: {\n\t\tvalue: str\n\t}\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2496,
+        3520
+      ],
+      "id": "334541be-addc-4568-be26-83b2548fc8f1",
+      "name": "MultiScript2"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "899265203273148",
+        "edge": "photos",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "url",
+                "value": "={{ $json.link }}"
+              },
+              {
+                "name": "published",
+                "value": "false"
+              },
+              {
+                "name": "temporary",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        3520
+      ],
+      "id": "bed5b5e0-bce1-4511-b567-57df0dea213d",
+      "name": "KawJawMT",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "HwDOiaFALqDbrJn2",
+          "name": "KawJawFB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "899265203273148",
+        "edge": "feed",
+        "options": {
+          "queryParametersJson": "={{ $json.value }}"
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        3520
+      ],
+      "id": "925b9331-a240-4b80-a202-78f2e846cf19",
+      "name": "MultiKawJaw",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "HwDOiaFALqDbrJn2",
+          "name": "KawJawFB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "17841479599975471",
+        "edge": "media",
+        "allowUnauthorizedCerts": true,
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "image_url",
+                "value": "={{ $json.link }}"
+              },
+              {
+                "name": "is_carousel_item",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        3216
+      ],
+      "id": "6c89b0c8-3f24-4769-abce-394452ce8d63",
+      "name": "ArashiIGUpMT",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "=v24.0",
+        "node": "={{ $json.id }}",
+        "options": {
+          "fields": {
+            "field": [
+              {
+                "name": "id"
+              },
+              {
+                "name": "status"
+              },
+              {
+                "name": "status_code"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2496,
+        3216
+      ],
+      "id": "f0692fbc-438d-43d6-932b-ac07ac2726a5",
+      "name": "ArashiIGStatusMT",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "=17841479599975471",
+        "edge": "media",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "caption",
+                "value": "={{ $('PostFeed').item.json.Caption }}"
+              },
+              {
+                "name": "media_type",
+                "value": "CAROUSEL"
+              },
+              {
+                "name": "children",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3168,
+        3088
+      ],
+      "id": "40efb332-aa70-4c3f-b471-e80f731ac273",
+      "name": "ArashiIGCarousel",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "=17841479599975471",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3392,
+        3424
+      ],
+      "id": "e6d5c79f-0541-4e13-af46-27c3cd02fbb6",
+      "name": "ArashiIGPublishMT",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "=v24.0",
+        "node": "={{ $json.id }}",
+        "options": {
+          "fields": {
+            "field": [
+              {
+                "name": "id"
+              },
+              {
+                "name": "status"
+              },
+              {
+                "name": "status_code"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2496,
+        4032
+      ],
+      "id": "05fe47ad-09e2-495a-b132-d7f70bf7969b",
+      "name": "KawJawIGStatusMT",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2944,
+        3088
+      ],
+      "id": "18febb64-91bf-4338-aa38-f8583a91484d",
+      "name": "ArashiContainerID"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2944,
+        3888
+      ],
+      "id": "d8bd2618-1364-4739-9a57-e110b056e0a6",
+      "name": "KawJawContainerID"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "=17841479590856994",
+        "edge": "media",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "caption",
+                "value": "={{ $('PostFeed').item.json.Caption }}"
+              },
+              {
+                "name": "media_type",
+                "value": "CAROUSEL"
+              },
+              {
+                "name": "children",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3168,
+        3888
+      ],
+      "id": "6592c286-e3fd-47b1-8631-02306b82d189",
+      "name": "KawJawIGCarousel",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "=17841479590856994",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3392,
+        3888
+      ],
+      "id": "e955a338-b84b-4eb9-a299-85abf1cfa943",
+      "name": "KawJawIGPublishMT",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## TikTok \n**Same**",
+        "height": 912,
+        "width": 2176
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1456,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "cff8eb96-e985-4684-b4f0-633e963fc7f1",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## FBIG Single \n**Same**",
+        "height": 1152,
+        "width": 1376,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2304,
+        1568
+      ],
+      "typeVersion": 1,
+      "id": "991b80bc-58fa-4782-9aba-9c61cf28427f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## FBIG Multi \n**Same**",
+        "height": 1440,
+        "width": 1792,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1984,
+        2800
+      ],
+      "typeVersion": 1,
+      "id": "e05af565-4692-459d-a2ac-d931ff78ade9",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=1827209226",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "No.": "={{ $('Get row(s) in sheet').item.json['No.'] }}",
+            "โพสต์TT": "true"
+          },
+          "matchingColumns": [
+            "No."
+          ],
+          "schema": [
+            {
+              "id": "No.",
+              "displayName": "No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Brief google-slide",
+              "displayName": "Brief google-slide",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "PM CHECK ส่งไป Graphic",
+              "displayName": "PM CHECK ส่งไป Graphic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Work name",
+              "displayName": "Work name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Target",
+              "displayName": "Target",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Deadline",
+              "displayName": "Deadline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันส่งมอบงาน",
+              "displayName": "วันส่งมอบงาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link งาน (drive)",
+              "displayName": "Link งาน (drive)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 1",
+              "displayName": "แก้ไข ครั้ง 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 2",
+              "displayName": "แก้ไข ครั้ง 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 3",
+              "displayName": "แก้ไข ครั้ง 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link Final (Folder ONLY)",
+              "displayName": "Link Final (Folder ONLY)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 1 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 1 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link brief caption",
+              "displayName": "Link brief caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 2 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 2 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์FB",
+              "displayName": "โพสต์FB",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์TT",
+              "displayName": "โพสต์TT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "โพสต์IG",
+              "displayName": "โพสต์IG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3392,
+        704
+      ],
+      "id": "6167562e-8cb0-45d8-bf6f-f99dcdaaf3fb",
+      "name": "TTTrue",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=1827209226",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "No.": "={{ $('Get row(s) in sheet').item.json['No.'] }}",
+            "โพสต์FB": "true"
+          },
+          "matchingColumns": [
+            "No."
+          ],
+          "schema": [
+            {
+              "id": "No.",
+              "displayName": "No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Brief google-slide",
+              "displayName": "Brief google-slide",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "PM CHECK ส่งไป Graphic",
+              "displayName": "PM CHECK ส่งไป Graphic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Work name",
+              "displayName": "Work name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Target",
+              "displayName": "Target",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Deadline",
+              "displayName": "Deadline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันส่งมอบงาน",
+              "displayName": "วันส่งมอบงาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link งาน (drive)",
+              "displayName": "Link งาน (drive)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 1",
+              "displayName": "แก้ไข ครั้ง 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 2",
+              "displayName": "แก้ไข ครั้ง 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 3",
+              "displayName": "แก้ไข ครั้ง 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link Final (Folder ONLY)",
+              "displayName": "Link Final (Folder ONLY)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 1 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 1 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link brief caption",
+              "displayName": "Link brief caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 2 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 2 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์FB",
+              "displayName": "โพสต์FB",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "โพสต์TT",
+              "displayName": "โพสต์TT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์IG",
+              "displayName": "โพสต์IG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2944,
+        1728
+      ],
+      "id": "1678910d-030e-4526-8d12-b61b147126de",
+      "name": "FBTrue",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=1827209226",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "No.": "={{ $('Get row(s) in sheet').item.json['No.'] }}",
+            "โพสต์IG": "true"
+          },
+          "matchingColumns": [
+            "No."
+          ],
+          "schema": [
+            {
+              "id": "No.",
+              "displayName": "No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Brief google-slide",
+              "displayName": "Brief google-slide",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "PM CHECK ส่งไป Graphic",
+              "displayName": "PM CHECK ส่งไป Graphic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Work name",
+              "displayName": "Work name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Target",
+              "displayName": "Target",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Deadline",
+              "displayName": "Deadline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันส่งมอบงาน",
+              "displayName": "วันส่งมอบงาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link งาน (drive)",
+              "displayName": "Link งาน (drive)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 1",
+              "displayName": "แก้ไข ครั้ง 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 2",
+              "displayName": "แก้ไข ครั้ง 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 3",
+              "displayName": "แก้ไข ครั้ง 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link Final (Folder ONLY)",
+              "displayName": "Link Final (Folder ONLY)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 1 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 1 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link brief caption",
+              "displayName": "Link brief caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 2 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 2 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์FB",
+              "displayName": "โพสต์FB",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์TT",
+              "displayName": "โพสต์TT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์IG",
+              "displayName": "โพสต์IG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3616,
+        3072
+      ],
+      "id": "0806e46d-a984-4f68-bba4-9cd353d20a5d",
+      "name": "IGTrue",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3840,
+        1744
+      ],
+      "id": "43cfe499-d388-4d7e-b41f-e8ef6d0d75d1",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=1827209226",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "No.": "={{ $('Get row(s) in sheet').item.json['No.'] }}",
+            "Status": "true"
+          },
+          "matchingColumns": [
+            "No."
+          ],
+          "schema": [
+            {
+              "id": "No.",
+              "displayName": "No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Brief google-slide",
+              "displayName": "Brief google-slide",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "PM CHECK ส่งไป Graphic",
+              "displayName": "PM CHECK ส่งไป Graphic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Work name",
+              "displayName": "Work name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Target",
+              "displayName": "Target",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Deadline",
+              "displayName": "Deadline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "วันส่งมอบงาน",
+              "displayName": "วันส่งมอบงาน",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link งาน (drive)",
+              "displayName": "Link งาน (drive)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 1",
+              "displayName": "แก้ไข ครั้ง 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 2",
+              "displayName": "แก้ไข ครั้ง 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "แก้ไข ครั้ง 3",
+              "displayName": "แก้ไข ครั้ง 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link Final (Folder ONLY)",
+              "displayName": "Link Final (Folder ONLY)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 1 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 1 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Link brief caption",
+              "displayName": "Link brief caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AE FINAL CHECK 2 ส่งไป Admin",
+              "displayName": "AE FINAL CHECK 2 ส่งไป Admin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Brand",
+              "displayName": "Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์FB",
+              "displayName": "โพสต์FB",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์TT",
+              "displayName": "โพสต์TT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "โพสต์IG",
+              "displayName": "โพสต์IG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4064,
+        1760
+      ],
+      "id": "e360d829-6674-43ff-abc2-4a10a7751cb7",
+      "name": "Complete",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e16225c-60f9-404e-a54b-93a9e6301665",
+              "name": "Date",
+              "value": "={{ $json.Date === \"\" ? \"25/08/2003\": $jsno.Date }}",
+              "type": "string"
+            },
+            {
+              "id": "e85b3c95-9288-4676-88a2-7456b51b2226",
+              "name": "Time",
+              "value": "={{ $json.Time === \"\" ? \"00:00:00\": $jsno.Time }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -416,
+        2528
+      ],
+      "id": "c81ffe6d-3169-4094-8f03-34067b1ed580",
+      "name": "SetDate"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4ba1f3d5-a47d-42a0-a43d-35937b582e97",
+              "leftValue": "={{ DateTime.fromFormat($json.Date, \"dd/MM/yyyy\")}}",
+              "rightValue": "={{ $('Schedule Trigger').item.json.timestamp.toDateTime().startOf(\"day\") }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "739a7ba6-e3ba-4f3c-a904-22ebee949db7",
+              "leftValue": "={{ DateTime.fromFormat($json.Time, \"HH:mm:ss\")}}",
+              "rightValue": "={{ $('Schedule Trigger').item.json.timestamp.toDateTime().startOf(\"hour\") }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -192,
+        2528
+      ],
+      "id": "ba207402-24b1-4ee0-8162-2f6fac6c3031",
+      "name": "CheckDateTime"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('PostFeed').item.json.Brand }}",
+                    "rightValue": "Arashi",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "cad2fe9c-41cf-43ba-8313-17605fffeeb6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Arashi"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ab2abda2-19e4-4819-b49c-035d6851e205",
+                    "leftValue": "={{ $('PostFeed').item.json.Brand }}",
+                    "rightValue": "KawJaw",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "KawJaw"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        864
+      ],
+      "id": "bba6eb8a-5943-451b-9607-d146dedc789a",
+      "name": "AKJTT"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3964f060-5084-4c7e-b0f1-1c6e7c5ae611",
+              "name": "message",
+              "value": "No Brand Selected",
+              "type": "string"
+            },
+            {
+              "id": "569bc69e-4c20-480e-8a01-e9f547e61fd9",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2720,
+        1408
+      ],
+      "id": "75ebe05e-e213-4bcf-ba75-223853f062ee",
+      "name": "NoBrand"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3392,
+        1184
+      ],
+      "id": "625566f6-84b1-4764-a801-3eb35a3eea30",
+      "name": "Wait",
+      "webhookId": "14d36083-bdd2-4940-8030-7560abc1b274"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3964f060-5084-4c7e-b0f1-1c6e7c5ae611",
+              "name": "message",
+              "value": "TikTok Error",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3392,
+        896
+      ],
+      "id": "d66f81d3-542c-4ebb-ba06-ab971ba3cef3",
+      "name": "TTError"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3964f060-5084-4c7e-b0f1-1c6e7c5ae611",
+              "name": "message",
+              "value": "TikTok Error",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3392,
+        2656
+      ],
+      "id": "5248c6cc-5de6-4334-9a00-1a349a5c78df",
+      "name": "IGError"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('PostFeed').item.json.Brand }}",
+                    "rightValue": "Arashi",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "cad2fe9c-41cf-43ba-8313-17605fffeeb6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Arashi"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ab2abda2-19e4-4819-b49c-035d6851e205",
+                    "leftValue": "={{ $('PostFeed').item.json.Brand }}",
+                    "rightValue": "KawJaw",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "KawJaw"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        3152
+      ],
+      "id": "ae388eb5-40ef-4054-adf8-44cc7ae20f3e",
+      "name": "AKJMulti"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('PostFeed').item.json.Brand }}",
+                    "rightValue": "Arashi",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "cad2fe9c-41cf-43ba-8313-17605fffeeb6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Arashi"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ab2abda2-19e4-4819-b49c-035d6851e205",
+                    "leftValue": "={{ $('PostFeed').item.json.Brand }}",
+                    "rightValue": "KawJaw",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "KawJaw"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2496,
+        1888
+      ],
+      "id": "f0734a62-eef9-49ce-8bdb-1dc478ac6117",
+      "name": "AKJSingle"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3392,
+        2000
+      ],
+      "id": "6acbf345-8ebf-4d32-b74b-ba51e369be32",
+      "name": "Wait2",
+      "webhookId": "8c65f543-3171-493f-85de-e3efea25706a"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2944,
+        3312
+      ],
+      "id": "1eeb0266-8055-464e-98aa-56de1e27bd2b",
+      "name": "Wait3",
+      "webhookId": "5a34b03c-2b4d-453d-a963-e29b0c6e3d9e"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2944,
+        4080
+      ],
+      "id": "f6647c2d-aa30-4541-b97d-dbe047c4d483",
+      "name": "Wait4",
+      "webhookId": "e79df03e-e970-442e-bee6-990309897320"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3392,
+        3088
+      ],
+      "id": "f4584d82-e40f-46b1-860c-f551be6823a5",
+      "name": "Wait5",
+      "webhookId": "ce687d0e-0451-4605-a3a2-6102c68f3ee6"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "FINISHED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "bd8baa8a-0549-4569-924d-e223626ba0c7"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Finish"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fa988561-c66e-451b-935b-b8e948ab15a5",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "progress"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3168,
+        2448
+      ],
+      "id": "8a428b83-b7f3-4427-8ba2-7d141d39b467",
+      "name": "KawJawSGIGCheck"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "FINISHED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "bd8baa8a-0549-4569-924d-e223626ba0c7"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Finish"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fa988561-c66e-451b-935b-b8e948ab15a5",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "progress"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3168,
+        1984
+      ],
+      "id": "180e4f21-7bfc-47ab-a60a-fd1c9694a3ca",
+      "name": "ArashiSGIGCheck"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "FINISHED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "bd8baa8a-0549-4569-924d-e223626ba0c7"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Finish"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fa988561-c66e-451b-935b-b8e948ab15a5",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "progress"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2720,
+        3120
+      ],
+      "id": "61f103e0-cdb0-4a79-85ab-fc188c50d951",
+      "name": "ArashiMTIGCheck"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "FINISHED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "bd8baa8a-0549-4569-924d-e223626ba0c7"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Finish"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fa988561-c66e-451b-935b-b8e948ab15a5",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "progress"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2720,
+        3872
+      ],
+      "id": "5ba82562-b982-41da-bdd6-cf065f4abb0f",
+      "name": "KawJawMTIGCheck"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"Ce3eb23513747a4bd1f3a0919286d3df6\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"{{$json.message}} At no {{ $('Get row(s) in sheet').item.json['No.'] }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3616,
+        1120
+      ],
+      "id": "b2d74258-0422-4436-a220-316318778059",
+      "name": "AdminReport",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "v2SYKy78agqrpA6K",
+          "name": "LineBBT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "899265203273148",
+        "edge": "photos",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message",
+                "value": "={{ $('PostFeed').item.json.Caption }}"
+              },
+              {
+                "name": "url",
+                "value": "={{ $('FileInfo').item.json.link }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        2160
+      ],
+      "id": "1e7e6651-2fa4-4e8d-a270-23b513a3e289",
+      "name": "KawJawFBSingle",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "HwDOiaFALqDbrJn2",
+          "name": "KawJawFB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "17841479590856994",
+        "edge": "media",
+        "allowUnauthorizedCerts": true,
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "image_url",
+                "value": "={{ $json.link }}"
+              },
+              {
+                "name": "Caption",
+                "value": "={{ $('PostFeed').item.json.Caption }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        2544
+      ],
+      "id": "3daf2b28-df8e-45d3-8361-6f9b07ffd224",
+      "name": "KawJawIGUp",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "17841479590856994",
+        "edge": "media",
+        "allowUnauthorizedCerts": true,
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "image_url",
+                "value": "={{ $json.link }}"
+              },
+              {
+                "name": "is_carousel_item",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        4032
+      ],
+      "id": "754428db-4540-4de2-8b8f-65d6581c62bf",
+      "name": "KawJawIGUpMT",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "17841479599975471",
+        "edge": "media",
+        "allowUnauthorizedCerts": true,
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "image_url",
+                "value": "={{ $json.link }}"
+              },
+              {
+                "name": "Caption",
+                "value": "={{ $('PostFeed').item.json.Caption }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        1968
+      ],
+      "id": "961c0871-e5a8-466e-bfb5-098a86e061d4",
+      "name": "ArashiIGUp",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "17841479599975471",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3392,
+        2192
+      ],
+      "id": "c202b88b-d1b5-4814-9b1c-490c3db2b96d",
+      "name": "ArashiIGPublishSG",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "=v24.0",
+        "node": "17841479590856994",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3392,
+        2896
+      ],
+      "id": "f57d2ff6-89f0-41bf-8884-d899cc79a3a6",
+      "name": "KawJawIGPublishSG",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "tzBSWN0T25H4INNa",
+          "name": "IGArashi"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Upload": {
+      "main": [
+        [
+          {
+            "node": "FileInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download": {
+      "main": [
+        [
+          {
+            "node": "Edit Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Image1": {
+      "main": [
+        [
+          {
+            "node": "Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MultiScript": {
+      "main": [
+        [
+          {
+            "node": "MultiArashi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "TTTrue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TTError",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "SetDate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostFeed": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "TTTrue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TTError",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FileInfo": {
+      "main": [
+        [
+          {
+            "node": "Delete",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TTLink",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetArashiToken": {
+      "main": [
+        [
+          {
+            "node": "GetArashiInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostArashi": {
+      "main": [
+        [
+          {
+            "node": "ArashiTTStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetKawJawInfo": {
+      "main": [
+        [
+          {
+            "node": "PostKawJaw",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetArashiInfo": {
+      "main": [
+        [
+          {
+            "node": "PostArashi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostKawJaw": {
+      "main": [
+        [
+          {
+            "node": "KawJawTTStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawTTStatus": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiTTStatus": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "1orMultiFBIG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiSingle": {
+      "main": [
+        [
+          {
+            "node": "FBTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetKawJawToken(NOT)": {
+      "main": [
+        [
+          {
+            "node": "GetKawJawInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawIGStatus": {
+      "main": [
+        [
+          {
+            "node": "KawJawSGIGCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiIGStatus": {
+      "main": [
+        [
+          {
+            "node": "ArashiSGIGCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1orMultiFBIG": {
+      "main": [
+        [
+          {
+            "node": "AKJSingle",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiMT": {
+      "main": [
+        [
+          {
+            "node": "MultiScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TTLink": {
+      "main": [
+        [
+          {
+            "node": "TTList",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TTList": {
+      "main": [
+        [
+          {
+            "node": "AKJTT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "AKJMulti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MultiScript2": {
+      "main": [
+        [
+          {
+            "node": "MultiKawJaw",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawMT": {
+      "main": [
+        [
+          {
+            "node": "MultiScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiIGUpMT": {
+      "main": [
+        [
+          {
+            "node": "ArashiIGStatusMT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiIGStatusMT": {
+      "main": [
+        [
+          {
+            "node": "ArashiMTIGCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiIGCarousel": {
+      "main": [
+        [
+          {
+            "node": "ArashiIGPublishMT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawIGStatusMT": {
+      "main": [
+        [
+          {
+            "node": "KawJawMTIGCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiContainerID": {
+      "main": [
+        [
+          {
+            "node": "ArashiIGCarousel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawContainerID": {
+      "main": [
+        [
+          {
+            "node": "KawJawIGCarousel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawIGCarousel": {
+      "main": [
+        [
+          {
+            "node": "KawJawIGPublishMT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MultiArashi": {
+      "main": [
+        [
+          {
+            "node": "FBTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MultiKawJaw": {
+      "main": [
+        [
+          {
+            "node": "FBTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiIGPublishMT": {
+      "main": [
+        [
+          {
+            "node": "IGTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawIGPublishMT": {
+      "main": [
+        [
+          {
+            "node": "IGTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IGTrue": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "TTTrue": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FBTrue": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetDate": {
+      "main": [
+        [
+          {
+            "node": "CheckDateTime",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CheckDateTime": {
+      "main": [
+        [
+          {
+            "node": "PostFeed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "AKJTT": {
+      "main": [
+        [
+          {
+            "node": "GetArashiToken",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GetKawJawToken(NOT)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NoBrand",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AKJMulti": {
+      "main": [
+        [
+          {
+            "node": "ArashiMT",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ArashiIGUpMT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "KawJawIGUpMT",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "KawJawMT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NoBrand",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AKJSingle": {
+      "main": [
+        [
+          {
+            "node": "ArashiSingle",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ArashiIGUp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "KawJawFBSingle",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "KawJawIGUp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NoBrand",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "ArashiIGStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "ArashiIGStatusMT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "KawJawIGStatusMT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait5": {
+      "main": [
+        [
+          {
+            "node": "KawJawIGStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawSGIGCheck": {
+      "main": [
+        [
+          {
+            "node": "KawJawIGPublishSG",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IGError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiSGIGCheck": {
+      "main": [
+        [
+          {
+            "node": "ArashiIGPublishSG",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IGError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiMTIGCheck": {
+      "main": [
+        [
+          {
+            "node": "ArashiContainerID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IGError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawMTIGCheck": {
+      "main": [
+        [
+          {
+            "node": "KawJawContainerID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IGError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IGError": {
+      "main": [
+        [
+          {
+            "node": "AdminReport",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TTError": {
+      "main": [
+        [
+          {
+            "node": "AdminReport",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NoBrand": {
+      "main": [
+        [
+          {
+            "node": "AdminReport",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawFBSingle": {
+      "main": [
+        [
+          {
+            "node": "FBTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawIGUp": {
+      "main": [
+        [
+          {
+            "node": "KawJawIGStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawIGUpMT": {
+      "main": [
+        [
+          {
+            "node": "KawJawIGStatusMT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiIGUp": {
+      "main": [
+        [
+          {
+            "node": "ArashiIGStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArashiIGPublishSG": {
+      "main": [
+        [
+          {
+            "node": "IGTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KawJawIGPublishSG": {
+      "main": [
+        [
+          {
+            "node": "IGTrue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "64bb44e2-b8a7-465c-a30f-9475837f3118",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6ce6cc26d7cded381401160844523e16bd41538e7aeb8e50d80a70af08a2809d"
+  },
+  "id": "ujQsR5OQi6pP1xCU",
+  "tags": []
+}

@@ -1,0 +1,485 @@
+{
+  "name": "GraphicWorkflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1827209226,
+          "mode": "list",
+          "cachedResultName": "Graphic plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit#gid=1827209226"
+        },
+        "event": "rowUpdate",
+        "includeInOutput": "both",
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRange",
+              "headerRow": 3,
+              "firstDataRow": 4
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        384
+      ],
+      "id": "b018af02-c892-4cba-95ea-6837b9a5fca7",
+      "name": "Google Sheets Trigger",
+      "retryOnFail": false,
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "WL6lmiM0tL6Cm9Fo",
+          "name": "SheetGraphicTg"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "expression",
+        "numberOutputs": 5,
+        "output": "={{ $json.current['PM CHECK ส่งไป Graphic'] === true && $json.previous['PM CHECK ส่งไป Graphic'] === \"\" ? '0' : \n$json.current['AE FINAL CHECK 1 ส่งไป Admin'] === true && $json.previous['AE FINAL CHECK 1 ส่งไป Admin'] === \"\" ? '1': \n$json.current[\"AE FINAL CHECK 2 ส่งไป Admin\"] === true && $json.previous[\"AE FINAL CHECK 2 ส่งไป Admin\"] === \"\" ? '2':\n$json.current[\"Link งาน (drive)\"] !== \"\" && $json.previous[\"Link งาน (drive)\"] === \"\" ? '3':\n'4'}} ",
+        "looseTypeValidation": true
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        208
+      ],
+      "id": "7168a048-92bb-4008-a8ad-37a759d548ce",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"Ce3eb23513747a4bd1f3a0919286d3df6\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"{{ $json.message }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        192
+      ],
+      "id": "19f3bd32-e3a4-4b61-a5f4-ccbfb9adda8b",
+      "name": "Admin",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9FQH2d1hTB1ZAabZ",
+          "name": "AdminBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "df24c506-eecb-4f28-bb24-981877cce282",
+              "name": "message",
+              "value": "={{ \"คิดบรีฟแคปชั่นได้เลย\\\\nNo: \" + $json.current['No.'] + \"\\\\nHead: \" + $json.current[\"Head\"] + \"\\\\nLink: \" + $json.current[\"Link งาน (drive)\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        160
+      ],
+      "id": "159da4d4-f018-4ce9-82a1-08e25cd0d435",
+      "name": "AE FINAL CHECK 1 ส่งไป Admin"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "df24c506-eecb-4f28-bb24-981877cce282",
+              "name": "message",
+              "value": "={{ \"บรีฟคอนเทนต์ผ่าน\\\\nNo: \" + $('Google Sheets Trigger').item.json.current[\"No.\"] + \"\\\\nHead: \" + $('Google Sheets Trigger').item.json.current[\"Head\"] + \"\\\\nBrief: \" + $('Google Sheets Trigger').item.json.current[\"Brief google-slide\"] + \"\\\\nDeadline\\\\nDate: \" + $('TimeFormat').item.json.DeadlineDate + \"\\\\nTime: \" +$('TimeFormat').item.json.DeadlineTime }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        -32
+      ],
+      "id": "452f3f9d-b10c-42d4-94d4-c878ac835d10",
+      "name": "PM CHECK ส่งไป Graphic"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"C5491d6b691bbe23f79c619e8c5ebf591\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"{{$json.message}}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "00676be6-6777-4d70-88b5-a746618cdae9",
+      "name": "Graphic",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "7Jego8pJyeOu0NAG",
+          "name": "GraphicBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "df24c506-eecb-4f28-bb24-981877cce282",
+              "name": "message",
+              "value": "={{ \"โพสได้เลย\\\\nNo: \" + $json.current['No.'] + \"\\\\nHead: \" + $json.current[\"Head\"] + \"\\\\nCaption Link: \" + $json.current['Link brief caption']}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        352
+      ],
+      "id": "3194d4ea-e7ea-4873-9952-880f173e0505",
+      "name": "AE FINAL CHECK 2 ส่งไป Admin1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"Uac11d00d426ebc6da0559d9273133337\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"Error In Graphic\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -224,
+        496
+      ],
+      "id": "c8045a0f-3f86-49b2-bb4f-2e9cb34b615d",
+      "name": "Me",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "v2SYKy78agqrpA6K",
+          "name": "LineBBT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0893d4d-bb90-4cb8-8b42-7181204cfcea",
+              "name": "DeadlineDate",
+              "value": "={{ new Date(($('Google Sheets Trigger').item.json.current.Deadline  - 25569) * 86400 * 1000).toISOString().split(\"T\")[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "639650e2-4a1a-4063-93a9-b45f7071f7f7",
+              "name": "DeadlineTime",
+              "value": "={{ new Date($('Google Sheets Trigger').item.json.current['Deadline Time'] * 24 * 60 * 60 * 1000).toISOString().substr(11, 8) }}",
+              "type": "string"
+            },
+            {
+              "id": "656de005-3690-4543-947f-247a839d0e43",
+              "name": "SendDate",
+              "value": "={{ new Date(($('Google Sheets Trigger').item.json.current['วันส่งมอบงาน']  - 25569) * 86400 * 1000).toISOString().split(\"T\")[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "2919d37a-fd33-4913-b42d-d43ac9bc786d",
+              "name": "SendTime",
+              "value": "={{ new Date($('Google Sheets Trigger').item.json.current['เวลาส่งมอบงาน'] * 24 * 60 * 60 * 1000).toISOString().substr(11, 8) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        -32
+      ],
+      "id": "0e195b16-2fbc-4efe-b7af-220e9895623f",
+      "name": "TimeFormat"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Mgi9hruRnpnObJabRHkI2pqRLE1Rgb5lffsFDtij4iQ",
+          "mode": "list",
+          "cachedResultName": "DeadLineCheck",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mgi9hruRnpnObJabRHkI2pqRLE1Rgb5lffsFDtij4iQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Graphic",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mgi9hruRnpnObJabRHkI2pqRLE1Rgb5lffsFDtij4iQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Link": "={{ $('Google Sheets Trigger').item.json.current['Link งาน (drive)'] }}",
+            "Work name": "={{ $('Google Sheets Trigger').item.json.current['Work name'] }}",
+            "Head": "={{ $('Google Sheets Trigger').item.json.current.Head }}",
+            "DaedlineDate": "={{ new Date(($('Google Sheets Trigger').item.json.current.Deadline  - 25569) * 86400 * 1000).toISOString().split(\"T\")[0] }}",
+            "DeadlineTime": "={{ new Date($('Google Sheets Trigger').item.json.current['เวลาส่งมอบงาน'] * 24 * 60 * 60 * 1000).toISOString().substr(11, 8) }}",
+            "SendDate": "={{ $now.toISO().split(\"T\")[0] }}",
+            "SendTime": "={{ $now.toISO().split(\"T\")[1].split(\".\")[0] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Link",
+              "displayName": "Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Work name",
+              "displayName": "Work name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Head",
+              "displayName": "Head",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DaedlineDate",
+              "displayName": "DaedlineDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DeadlineTime",
+              "displayName": "DeadlineTime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SendDate",
+              "displayName": "SendDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SendTime",
+              "displayName": "SendTime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        544
+      ],
+      "id": "73f9bbdc-d2a8-43e0-b696-2a65a485320b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1WvbFOF6SCmxYd3V",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "TimeFormat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AE FINAL CHECK 1 ส่งไป Admin",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AE FINAL CHECK 2 ส่งไป Admin1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AE FINAL CHECK 1 ส่งไป Admin": {
+      "main": [
+        [
+          {
+            "node": "Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PM CHECK ส่งไป Graphic": {
+      "main": [
+        [
+          {
+            "node": "Graphic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AE FINAL CHECK 2 ส่งไป Admin1": {
+      "main": [
+        [
+          {
+            "node": "Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TimeFormat": {
+      "main": [
+        [
+          {
+            "node": "PM CHECK ส่งไป Graphic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5305d16f-2c08-4a01-92e1-cd07c24d96be",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6ce6cc26d7cded381401160844523e16bd41538e7aeb8e50d80a70af08a2809d"
+  },
+  "id": "JxTfQHFFauYbhNLg",
+  "tags": []
+}

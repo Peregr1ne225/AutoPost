@@ -1,0 +1,419 @@
+{
+  "name": "UpdateWorkflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4",
+          "mode": "list",
+          "cachedResultName": "BuddyhouseclubPlan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1103260816,
+          "mode": "list",
+          "cachedResultName": "Overall",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1owtY_u7KYGSDKmNTzwC9-6vrkONr_-3jo5POxeZfBq4/edit#gid=1103260816"
+        },
+        "event": "rowUpdate",
+        "includeInOutput": "both",
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRange",
+              "headerRow": 2,
+              "firstDataRow": 3
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        208
+      ],
+      "id": "fd6e134d-2043-42ef-a28b-e94836801786",
+      "name": "Google Sheets Trigger1",
+      "retryOnFail": false,
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "rlHwytt3KT112F5u",
+          "name": "SheetTrigger"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"C804f95046db9a6adcba3ec3a433264a7\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"{{ $json.message }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1056,
+        192
+      ],
+      "id": "1c376b1c-b0f0-4414-afe5-60cbc1396b54",
+      "name": "UpdateProcess",
+      "executeOnce": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "v2SYKy78agqrpA6K",
+          "name": "LineBBT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"Cd2fe80261fc7e70b28e67dcba8a98219\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"{{ $json.message }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "3bffa641-25a3-446d-a204-7abf7a16678f",
+      "name": "PMCheck",
+      "executeOnce": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "vfAuDemk0DfBFheD",
+          "name": "PMBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "90f3f77e-16a7-497a-bd75-4de465d123e3",
+              "name": "message",
+              "value": "={{ \"Process Updated\\\\nTopic: \" + $json.current.Topic + \"\\\\nLink: \" + $json.current.Link + \"\\\\nProcess: \" + $json.current.PROCESS}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        0
+      ],
+      "id": "0af62c70-0095-4abc-97b9-7015ba7f5d84",
+      "name": "PM Process"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "90f3f77e-16a7-497a-bd75-4de465d123e3",
+              "name": "message",
+              "value": "={{ \"Type: \" + $json.current.TYPE + \"\\\\nTopic: \" + $json.current.Topic + \"\\\\nProcess: \" + $json.current.PROCESS + \"\\\\nLink: \" + $json.current.Link }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        192
+      ],
+      "id": "41684c29-2cc8-42bf-96a5-651e0c6ea445",
+      "name": "PMFINAL"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"Uac11d00d426ebc6da0559d9273133337\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"Error In Update\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        608,
+        304
+      ],
+      "id": "f7832d3b-ea63-4059-9904-9d84d490e7c8",
+      "name": "Me",
+      "executeOnce": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "v2SYKy78agqrpA6K",
+          "name": "LineBBT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d2527822-17d4-44a3-9f83-9aa7be6dc5c4",
+              "leftValue": "={{ $json.current.PROCESS }}",
+              "rightValue": "={{ $json.previous.PROCESS }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -160,
+        64
+      ],
+      "id": "464ba5f3-650b-4359-b7f1-5386509141dd",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "94581410-432a-4ed9-98f7-7fab719d17eb",
+              "leftValue": "={{ $json.current['PM FINAL CHECK' ]}}",
+              "rightValue": "=",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "0d6495ca-5c06-493a-91d4-b55bf53e7715",
+              "leftValue": "={{ $json.previous['PM FINAL CHECK'] }}",
+              "rightValue": "=",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        112,
+        144
+      ],
+      "id": "7b072565-849b-4b3c-8993-12963decf7ef",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "94581410-432a-4ed9-98f7-7fab719d17eb",
+              "leftValue": "={{ $json.current['PM FINAL CHECK' ]}}",
+              "rightValue": "=",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "0d6495ca-5c06-493a-91d4-b55bf53e7715",
+              "leftValue": "={{ $json.previous['PM FINAL CHECK'] }}",
+              "rightValue": "=",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        96,
+        -48
+      ],
+      "id": "f4a69e6b-4bbe-4901-b612-877929c54ed5",
+      "name": "If2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PM Process": {
+      "main": [
+        [
+          {
+            "node": "PMCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PMFINAL": {
+      "main": [
+        [
+          {
+            "node": "UpdateProcess",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "PMFINAL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "PM Process",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "PMFINAL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PM Process",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "6be2e669-2415-48fe-b524-fb21a6a2d859",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6ce6cc26d7cded381401160844523e16bd41538e7aeb8e50d80a70af08a2809d"
+  },
+  "id": "wQgFDemdimYahCbE",
+  "tags": []
+}
